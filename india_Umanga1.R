@@ -8,13 +8,13 @@ library(sf); library(ggsn);
 library(GGally)
 
 rm(list = ls())
-cat("\014")
+cat("\08")
 
 ## data
 data<-read_csv("india5_fixed.csv")
 
 
-# map
+# map of India 
 area <- st_read("./map/INDIA.shp")
 area$ID <- str_to_title(area$ID)
 
@@ -26,7 +26,7 @@ ggplot(area) +
         legend.title = element_text(size = 10),
         legend.key.size = unit(10, "points"))
 
-# neig
+# neighbour joining matrix 
 india_nb <- poly2nb(as(area, "Spatial"), row.names = area$ID) #to create adjacency matrix 
 nb2INLA("india_adj", india_nb)
 india_adj <- "india_adj"
@@ -73,7 +73,7 @@ ggplot(mp, aes(fill=outbreaknumber))+
 
 sum(data$outbreaknumber == 0) / nrow(data)
 ###
-## we really need to use penalized prior, do not anotote the precs
+##Priors 
 prec <- list(prec = list(prior = "pc.prec", param = c(.3/.31, .01)))
 prec_bym2 <- list(phi = list(prior = "pc", param = c(.5, 2/3)),
                   prec = list(prior = "pc.prec", param = c(.3/.31, .01)))
