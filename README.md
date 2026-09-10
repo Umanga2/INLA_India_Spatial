@@ -6,3 +6,5 @@ outbreaks.
 
 #Data
 Outbreak data, spatial variables 
+
+[Read the published manuscript] (https://pmc.ncbi.nlm.nih.gov/articles/PMC9790522/)
