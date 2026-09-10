@@ -383,28 +383,3 @@ ggplot(lepto3, aes(fill = ER)) +
 
 
 
-## simulation to cope zero data---------------------------------------------------------------
-Nsimula <- 10000
-simuladata <- inla.posterior.sample(n = Nsimula, result = RR3)
-# simuladata[[1]]$latent
-
-parameter<- rownames(RR3$summary.fixed)
-data_ID <- function(x){which(rownames(simuladata[[1]]$latent) == x) }
-RowNum.Betas <- lapply(parameter, data_ID)
-RowNum.Betas <- as.numeric(RowNum.Betas)
-RowNum.Betas ## find the rows
-
-Betas <- simuladata[[1]]$latent[RowNum.Betas]
-X <- model.matrix(~1,
-                  data = data)
-
-Xm <- as.matrix(X)
-
-FixedPart   <- Xm %*% Betas
-mu   <- exp(FixedPart)
-Ysim <- rpois(n = nrow(data), lambda = mu)
-table(Ysim)
-
-plot(table(Ysim),
-     xlab = "Simulated Lepto counts",
-     ylab = "Frequencies")
