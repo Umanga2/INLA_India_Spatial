@@ -7,5 +7,6 @@ outbreaks.
 #Data
 Outbreak data, spatial variables 
 
+##Publication 
 This analysis is associated with the following published manuscript:
-[Read the published manuscript] (https://pmc.ncbi.nlm.nih.gov/articles/PMC9790522/)
+[Read the published manuscript](https://pmc.ncbi.nlm.nih.gov/articles/PMC9790522/)
