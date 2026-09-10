@@ -10,11 +10,11 @@ library(GGally)
 rm(list = ls())
 cat("\08")
 
-## data
+## Data
 data<-read_csv("india5_fixed.csv")
 
 
-# map of India 
+# Map of India 
 area <- st_read("./map/INDIA.shp")
 area$ID <- str_to_title(area$ID)
 
@@ -25,6 +25,7 @@ ggplot(area) +
   theme(text = element_text(size = 12, face = "bold"),
         legend.title = element_text(size = 10),
         legend.key.size = unit(10, "points"))
+#__________________________________________________________________________________________#
 
 # neighbour joining matrix 
 india_nb <- poly2nb(as(area, "Spatial"), row.names = area$ID) #to create adjacency matrix 
@@ -56,7 +57,7 @@ data<-data%>%
          id_year3 = year - min(year) + 1,
          id_id_year = 1:n())
 
-## visual check
+## visual check of outbreak number##
 data$ID<-as.factor(data$ID)
 mp<-area%>%
   dplyr::select(ID)%>%
@@ -72,7 +73,9 @@ ggplot(mp, aes(fill=outbreaknumber))+
         legend.key.size = unit(10,"points"))
 
 sum(data$outbreaknumber == 0) / nrow(data)
-###
+
+##___________________Different models______________________________________________________________
+
 ##Priors 
 prec <- list(prec = list(prior = "pc.prec", param = c(.3/.31, .01)))
 prec_bym2 <- list(phi = list(prior = "pc", param = c(.5, 2/3)),
@@ -81,7 +84,7 @@ prec_bym2 <- list(phi = list(prior = "pc", param = c(.5, 2/3)),
 # Linear combination for spatio temporal interactions
 lcs <- inla.make.lincombs(id_year = diag(length(unique(data$id_year))),
                           id_year2 = diag(length(unique(data$id_year2))))
-#
+
 RR01 <- inla(outbreaknumber ~ 1 +
                f(id,
                  model = "iid",
@@ -104,13 +107,12 @@ qplot(data$outbreaknumber/data$expected_cases, RR01$summary.fitted.values$mean) 
   ylab("Predicted") +
   geom_smooth(method = "lm", color = "red", size = .5)
 
-## Model checking 
+## Model checking## 
 
 pred_p <- PredPValue(RR01)
 pred_p$p_tails * 100 ## doing very bad
 
 
-#
 #Structured Model for Visceral[RR02] (Poisson)
 
 
@@ -268,7 +270,7 @@ RR6 <- inla(outbreaknumber ~ 1 +
             control.predictor = list(compute = TRUE),
             control.compute = list(dic = TRUE))
 
-## Model checking --------------------------------------------------------------
+## ________________________Model checking ___________________________________________________________
 
 DIC(RR01, RR02, RR3, RR4, RR5, RR6)
 pred_p <- PredPValue(RR01, RR02,RR3, RR5)
@@ -277,8 +279,6 @@ pred_p$p_tails * 100
 ## Explained variance
 ExplainedVariance(RR3)
 
-
-#-----------------------------------------------------------------------
 ## model validation and further checks
 data$muRR3 <- RR3$summary.fitted.values[,"mean"]
 head(cbind(data$muRR3, data$outbreaknumber/data$expected_cases))## not bad
@@ -305,7 +305,7 @@ ggplot(lepto2, aes(fill=RR))+
         legend.title = element_text(size = 12),
         legend.key.size = unit(10,"points"))
 
-#####################------------------
+#____________________________________________________
 ERR1<- (data$RR-data$muRR3) / sqrt(data$muRR3)
 
 # Residuals Vs parameters
@@ -346,12 +346,6 @@ spatio_temporal_exc_risk <- data %>%
   select(state, year) %>%
   mutate(ER = exc_risk) %>%
   spread(year, ER)
-
-lepto3 <- mp %>% ## adding ecxess risk to the map 
-  select(state) %>%
-  left_join(spatio_temporal_exc_risk, by = "state") %>%
-  gather(year, ER, -state, -geometry) %>%
-  mutate(year = as.integer(year))
 
 ggplot(lepto3, aes(fill = ER)) +
   geom_sf(size=.5)+
