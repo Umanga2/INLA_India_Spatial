@@ -318,7 +318,7 @@ abline(h = 0, lty = 2)
 plot(x = data$muRR3, # note that the PCA are explaning ok the zeros
      y = data$RR,
      xlab = "Fitted values",
-     ylab = "Observed Lepto ",
+     ylab = "Observed Outbreaks ",
      xlim = c(0, 12),
      ylim = c(0, 12))
 
